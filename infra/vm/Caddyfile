@@ -1,0 +1,54 @@
+{
+	admin off
+	servers {
+		# Probe idle connections every 5 s. A Foundry sandbox that is stopped disappears
+		# without closing its connections; until the proxy notices, Temporal keeps offering
+		# tasks to that worker's open polls. With tcp_keepalive_probes=2 on the VM
+		# (infra/vm/gen_setup.sh) a dead peer is dropped after about 15 s.
+		keepalive_interval 5s
+	}
+}
+
+# One public name, one certificate (obtained automatically), four kinds of traffic:
+#   gRPC with the bearer token      -> the Temporal frontend (workers in Foundry, laptop scripts)
+#   /temporal-ui                    -> the Temporal UI, behind the console's login
+#   /2/, /3/, ...                   -> the consoles of booth stations 2 and up
+#   everything else                 -> the console of station 1 (it has its own access-code login)
+{$TFD_HOST} {
+	log {
+		output file /var/log/caddy/access.log
+		format json
+	}
+
+	@grpc header Content-Type application/grpc*
+	handle @grpc {
+		@authorized header Authorization "Bearer {$TFD_TOKEN}"
+		handle @authorized {
+			# No flush_interval here: with -1 the proxy keeps a request open after its client
+			# has gone, and Temporal then hands tasks to polls of workers that no longer exist.
+			reverse_proxy h2c://127.0.0.1:7233
+		}
+		handle {
+			respond "unauthorized" 401
+		}
+	}
+
+	# The Temporal UI, behind the console's login (the console answers 200 on /api/session
+	# when the visitor's cookie is valid). Queries are refused: opening a running workflow
+	# makes the UI send one, and a Query wakes a Foundry sandbox just to look.
+	handle /temporal-ui* {
+		forward_auth 127.0.0.1:8080 {
+			uri /api/session
+		}
+		@query path_regexp ^/temporal-ui/api/v1/namespaces/[^/]+/workflows/[^/]+/query/
+		respond @query "Queries are off in this demo: a Query would wake a sandbox." 403
+		reverse_proxy 127.0.0.1:8081
+	}
+
+	# One console per extra booth station; deploy_console.sh writes the routes here.
+	# STATION_ROUTES
+
+	handle {
+		reverse_proxy 127.0.0.1:8080
+	}
+}

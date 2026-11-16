@@ -1,0 +1,61 @@
+# Booth console for the Temporal + Microsoft Foundry demo.
+#
+# Layout on the VM, as infra/vm/deploy_console.sh installs it:
+#   /opt/tfd-console/app      this directory (app/, pyproject.toml, uv.lock)
+#   /opt/tfd-console/venv     uv sync --frozen --no-dev (UV_PROJECT_ENVIRONMENT)
+#   /etc/tfd-console.env      configuration and secrets, mode 600 (see console/README.md)
+#   /var/lib/tfd-console      what the console remembers about sandboxes (TFD_STATE_DIR)
+#
+# One process, on purpose: the sandbox registry, the login and start limits and the short
+# run cache live in memory. Do not add --workers.
+#
+# It listens on loopback only. The proxy in front of it terminates TLS and must pass the
+# visitor's Host header through unchanged (Caddy does), because the console refuses a POST
+# whose Origin does not match Host.
+
+[Unit]
+Description=Booth console for the Temporal + Microsoft Foundry demo
+After=network-online.target temporal.service
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=tfdconsole
+Group=tfdconsole
+WorkingDirectory=/opt/tfd-console/app
+EnvironmentFile=/etc/tfd-console.env
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/tfd-console/venv/bin/uvicorn app.main:app \
+    --app-dir /opt/tfd-console/app \
+    --host 127.0.0.1 --port 8080 \
+    --workers 1 \
+    --proxy-headers --forwarded-allow-ips 127.0.0.1 \
+    --no-server-header \
+    --timeout-graceful-shutdown 15
+Restart=always
+RestartSec=2
+# A stop waits for a Foundry session stop that is already in flight (about 5 s each).
+TimeoutStopSec=25
+
+# The console needs the network (Temporal on loopback, Foundry and the VM's identity
+# endpoint) and one writable directory. Nothing else.
+StateDirectory=tfd-console
+StateDirectoryMode=0750
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

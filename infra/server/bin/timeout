@@ -1,0 +1,11 @@
+#!/usr/bin/perl
+# Minimal stand-in for GNU timeout(1): timeout <seconds>[s] cmd args...
+use strict; use warnings;
+my $d = shift @ARGV; $d =~ s/s$//;
+my $pid = fork(); die "fork: $!" unless defined $pid;
+if (!$pid) { exec @ARGV or die "exec: $!"; }
+$SIG{ALRM} = sub { kill 'TERM', $pid; sleep 5; kill 'KILL', $pid; exit 124 };
+$SIG{TERM} = sub { kill 'TERM', $pid; };
+alarm(int($d + 0.999));
+waitpid($pid, 0);
+exit($? >> 8);

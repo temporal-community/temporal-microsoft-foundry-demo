@@ -1,0 +1,14 @@
+.venv/
+.build/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+# private state never belongs here: tokens, keys, certificates, env files
+*.env
+*.key
+*.pem
+certs/
+token
+recording/out/
+recording/raw/

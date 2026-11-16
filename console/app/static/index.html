@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Durable deep research · Temporal + Microsoft Foundry</title>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body data-view="loading">
+  <header class="top">
+    <div class="brand" aria-label="Temporal and Microsoft Foundry">
+      <span class="wordmark temporal">Temporal</span>
+      <span class="plus">+</span>
+      <span class="wordmark foundry">Microsoft Foundry</span>
+    </div>
+    <div class="title">Durable deep research</div>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <main class="login" id="login-view" hidden>
+    <form class="card login-card" id="login-form" autocomplete="off">
+      <h1>Durable deep research</h1>
+      <p class="lede">Research agents on Microsoft Foundry. Temporal keeps the work going across
+        approvals, timers and failures, and wakes Foundry only when there is something to do.</p>
+      <label for="access-code">Access code</label>
+      <input id="access-code" data-testid="access-code" type="password" autocomplete="off" spellcheck="false">
+      <button id="login-button" data-testid="login-button" type="submit" class="primary">Enter</button>
+      <p class="error" id="login-error" role="alert"></p>
+    </form>
+  </main>
+
+  <main class="app" id="app-view" hidden>
+    <section class="work" id="work" aria-label="The work">
+      <div id="ready-view" hidden>
+        <h1 class="headline">Ask a research question</h1>
+        <p class="lede">A planner agent proposes sub-questions and waits for your approval. Researcher
+          agents then search the web in parallel and a writer produces a brief. Between steps nothing
+          runs: Temporal holds the state and wakes Foundry when there is work.</p>
+        <form class="card start-card" id="start-form">
+          <textarea id="question-input" data-testid="question-input" rows="3" spellcheck="true"
+            placeholder="What do you want researched?" aria-label="Research question"></textarea>
+          <div class="presets" id="presets"></div>
+          <div class="start-row">
+            <div class="choice" id="follow-up-choice" role="radiogroup" aria-label="Follow-up"></div>
+            <button id="start-button" data-testid="start-button" type="submit" class="primary">Start research</button>
+          </div>
+          <p class="error" id="start-error" role="alert"></p>
+        </form>
+        <h2 class="section-title" id="recent-title" hidden>Recent runs</h2>
+        <ul class="recent" id="recent"></ul>
+      </div>
+
+      <div id="run-view" hidden>
+        <div class="run-head">
+          <span class="phase-chip" id="phase" data-testid="phase"></span>
+          <span class="run-id" id="run-id"></span>
+          <button id="new-run-button" class="ghost" type="button">New question</button>
+        </div>
+        <h1 class="question" id="question"></h1>
+        <div class="run-bar" id="run-bar">
+          <div class="bar-question" id="bar-question" aria-hidden="true"></div>
+          <ol class="steps" id="steps"></ol>
+          <p class="status-line" id="status-line"></p>
+        </div>
+
+        <section class="block" id="plan-block" hidden>
+          <h2 class="section-title">Plan</h2>
+          <div class="card" id="plan" data-testid="plan"></div>
+        </section>
+        <section class="block" id="research-block" hidden>
+          <h2 class="section-title">Research</h2>
+          <div class="research-grid" id="research"></div>
+        </section>
+        <section class="block" id="report-block" hidden>
+          <h2 class="section-title">Brief</h2>
+          <article class="paper" id="report" data-testid="report"></article>
+        </section>
+        <section class="block" id="follow-up-block" hidden>
+          <h2 class="section-title">Follow-up, after the timer</h2>
+          <div class="card follow-up" id="follow-up" data-testid="follow-up"></div>
+        </section>
+        <p class="error" id="run-error" role="alert"></p>
+      </div>
+    </section>
+
+    <aside class="side" aria-label="What is running">
+      <section class="count-card" id="count-card" data-up="0">
+        <div class="count-label">Foundry sandboxes running</div>
+        <div class="count" id="sandbox-count" data-testid="sandbox-count" data-value="">&ndash;</div>
+        <div class="count-text">
+          <div class="count-line" id="count-line">Asking Foundry what is running.</div>
+          <div class="count-sub" id="count-sub"></div>
+        </div>
+      </section>
+      <section class="side-block">
+        <h2 class="section-title" id="sandboxes-title">Sandboxes</h2>
+        <div class="sandbox-list" id="sandboxes"></div>
+      </section>
+      <section class="side-block grow">
+        <h2 class="section-title">Temporal timeline</h2>
+        <ol class="timeline" id="timeline" data-testid="timeline"></ol>
+      </section>
+      <footer class="side-foot">
+        <div class="foundry-meta" id="foundry-meta"></div>
+        <a class="ui-link" id="temporal-ui-link" data-testid="temporal-ui-link" target="_blank" rel="noopener" hidden>Open this run in the Temporal UI</a>
+      </footer>
+    </aside>
+  </main>
+
+  <script src="static/app.js" defer></script>
+</body>
+</html>

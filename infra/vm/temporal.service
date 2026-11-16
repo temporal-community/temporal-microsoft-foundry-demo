@@ -1,0 +1,15 @@
+[Unit]
+Description=Temporal server (custom build with the Azure Foundry compute provider)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=temporal
+WorkingDirectory=/var/lib/temporal
+ExecStart=/opt/temporal/temporal-server --config-file /etc/temporal/development-sqlite-file.yaml --allow-no-auth start
+Restart=on-failure
+RestartSec=3
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

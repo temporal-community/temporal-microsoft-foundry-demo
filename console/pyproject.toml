@@ -1,0 +1,28 @@
+[project]
+name = "tfd-console"
+version = "0.1.0"
+description = "Booth console for the Temporal + Microsoft Foundry demo: start research runs, approve plans, watch Foundry sandboxes come and go"
+requires-python = ">=3.12"
+dependencies = [
+    "azure-identity==1.27.0",
+    "fastapi==0.163.1",
+    "httpx==0.28.1",
+    "temporalio==1.36.0",
+    "uvicorn==0.54.0",
+]
+
+[dependency-groups]
+dev = ["playwright==1.65.2", "pytest==9.2.0", "pytest-asyncio==1.5.0"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
